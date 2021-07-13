@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+    code-server:
+        image: codercom/code-server
+        container_name: code-server
+        user: root
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.code-server.rule=Host(`code.${DOMAIN}`)"
+          - "traefik.http.routers.code-server.entrypoints=websecure"
+          - "traefik.http.routers.code-server.tls.certresolver=myresolver"
+        environment:
+          PUID: 1000
+          PGID: 1000
+          TZ: Asia/Seoul
+          PASSWORD: ${CODE_SERVER_PASSWORD}
+          SUDO_PASSWORD: ${CODE_SERVER_PASSWORD}
+        volumes:
+          - ./.config:/home/coder/.config
+          - ./workspace:/home/coder/project
+        restart: unless-stopped
+        networks:
+          - traefik
+
+networks:
+  traefik:
+    external: true
