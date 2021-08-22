@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+    weblate:
+        image: weblate/weblate
+        container_name: weblate
+        user: root
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.weblate.rule=Host(`weblate.${DOMAIN}`)"
+          - "traefik.http.routers.weblate.entrypoints=websecure"
+          - "traefik.http.routers.weblate.tls.certresolver=myresolver"
+        environment:
+           WEBLATE_SITE_DOMAIN: weblate.${DOMAIN}
+        env_file:
+           - ./environment
+        volumes:
+          - ./workspace:/app/data
+        restart: unless-stopped
+        networks:
+          - traefik
+        depends_on:
+          - database
+          - cache
+    database:
+        image: postgres:13-alpine
+        env_file:
+          - ./environment
+        volumes:
+          - postgres-data:/var/lib/postgresql/data
+        networks:
+          - traefik
+        restart: always
+    cache:
+        image: redis:6-alpine
+        restart: always
+        command: ["redis-server", "--appendonly", "yes"]
+        networks:
+          - traefik
+        volumes:
+          - redis-data:/data
+
+networks:
+  traefik:
+    external: true
+
+volumes:
+  postgres-data: {}
+  redis-data: {}

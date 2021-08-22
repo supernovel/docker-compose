@@ -1,0 +1,6 @@
+[user]
+	email = noreply@weblate.org
+	name = Weblate
+[merge "weblate-merge-gettext-po"]
+	name = Weblate merge driver for Gettext PO files
+	driver = /usr/local/lib/python3.7/dist-packages/weblate/examples/git-merge-gettext-po %O %A %B
